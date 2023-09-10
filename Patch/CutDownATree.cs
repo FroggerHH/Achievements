@@ -8,10 +8,11 @@ namespace Achievements;
 public class CutDownATree
 {
     [HarmonyPatch(typeof(TreeBase), nameof(TreeBase.RPC_Damage))] [HarmonyPostfix]
-    private static void InventoryChanged(TreeBase __instance, HitData hit)
+    private static void DamageTree(TreeBase __instance, HitData hit)
     {
         if (SceneManager.GetActiveScene().name != "main") return;
-        if (!Player.m_localPlayer || hit.GetAttacker() != Player.m_localPlayer) return;
+        if (!Player.m_localPlayer || hit == null || hit.GetAttacker() != Player.m_localPlayer) return;
+        if(__instance.m_nview.GetZDO() == null) return;
         if (__instance.m_nview.GetZDO().GetFloat(ZDOVars.s_health) > 0) return;
         Achs.TryCompleteAchievement("CutDownATree");
         Achs.SaveCompletedAchievements();
