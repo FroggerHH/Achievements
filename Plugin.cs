@@ -30,8 +30,8 @@ internal class Plugin : BaseUnityPlugin
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape) && Achs.IsMenuActive()) Achs.ShowAchievementsMenu(false);
-        if (Input.GetKeyDown(KeyCode.T)) Achs.TorgeAchievementsMenu();
-        if (Input.GetKeyDown(KeyCode.I)) Achs.AllAchievements.Random().Complete();
+        // if (Input.GetKeyDown(KeyCode.T)) Achs.TorgeAchievementsMenu();
+        // if (Input.GetKeyDown(KeyCode.I)) Achs.AllAchievements.Random().Complete();
     }
 
     private static void CreateAchievements()
