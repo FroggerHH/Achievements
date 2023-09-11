@@ -65,7 +65,8 @@ public sealed class ModBase
         plugin.Logger.LogInfo(msg);
         msg = $"[{ModName}] {msg}";
         if (Console.IsVisible()) Console.instance.AddString(msg.ToString());
-        if (Player.m_localPlayer) Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft, msg.ToString());
+        if (Player.m_localPlayer && Player.m_debugMode) Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft, msg
+        .ToString());
     }
 
     public static void DebugError(object msg, bool showWriteToDev = true)

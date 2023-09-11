@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Extensions.Valheim;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
 
@@ -12,9 +13,8 @@ public class CutDownATree
     {
         if (SceneManager.GetActiveScene().name != "main") return;
         if (!Player.m_localPlayer || hit == null || hit.GetAttacker() != Player.m_localPlayer) return;
-        if(__instance.m_nview.GetZDO() == null) return;
-        if (__instance.m_nview.GetZDO().GetFloat(ZDOVars.s_health) > 0) return;
-        Achs.TryCompleteAchievement("CutDownATree");
-        Achs.SaveCompletedAchievements();
+        if(__instance.m_nview.GetZDO() != null) return;
+        
+        Achs.GetAchievement("CutDownATree").Complete();
     }
 }

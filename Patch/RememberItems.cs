@@ -14,7 +14,5 @@ public class RememberItems
         if (!Player.m_localPlayer || Player.m_localPlayer.GetInventory() != __instance) return;
         foreach (var item in __instance.GetAllItems().Select(x => x.m_shared.m_name))
             Achs.AddProgress(AchievementCompleteWay.KnowItem, item);
-
-        Achs.SaveAchievementsProgress();
     }
 }

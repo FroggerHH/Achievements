@@ -36,9 +36,11 @@ public class Achievement
 
     public void Complete()
     {
+        if (IsComplete()) return;
         ModBase.Debug($"Achievement {name} completed");
         Achs.CompletedAchievements.TryAdd(name);
         Achs.SaveCompletedAchievements();
+        Achs.CreateAchievementUIElement(this);
     }
 
     public bool IsComplete() { return Achs.CompletedAchievements.Contains(name); }
@@ -48,4 +50,9 @@ public class Achievement
         if (Achs.CompletedAchievements.Contains(name))
             Achs.CompletedAchievements.Remove(name);
     }
+
+    public string GetName() => $"$Achievement_{name}_name".Localize();
+    public string GetDescription() => $"$Achievement_{name}_desc".Localize();
+
+    public override string ToString() => $"Name: {name}";
 }
