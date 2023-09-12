@@ -3,5 +3,6 @@
 public enum AchievementCompleteWay
 {
     KnowItem,
-    UsedItem
+    UsedItem,
+    CustomProgress
 }

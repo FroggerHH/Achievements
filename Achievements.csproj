@@ -126,7 +126,12 @@
         <Compile Include="Patch\AddMenuInMainMenu.cs" />
         <Compile Include="Patch\CutDownATree.cs" />
         <Compile Include="Patch\FireworksFestival.cs" />
+        <Compile Include="Patch\HeadInClouds.cs" />
+        <Compile Include="Patch\Horticulturist.cs" />
+        <Compile Include="Patch\IntrusiveThoughtsWon.cs" />
+        <Compile Include="Patch\Journeyman.cs" />
         <Compile Include="Patch\MaxResting.cs" />
+        <Compile Include="Patch\MushroomMan.cs" />
         <Compile Include="Patch\RememberItems.cs" />
         <Compile Include="Patch\TakeASleep.cs" />
         <Compile Include="Plugin.cs" />

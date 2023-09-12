@@ -13,9 +13,9 @@ public class TakeASleep
     {
         if (SceneManager.GetActiveScene().name != "main") return;
         if (!Player.m_localPlayer || human != Player.m_localPlayer) return;
-        if(__instance.GetOwner() == 0L || !__instance.IsMine() || !__instance.IsCurrent()) return;
-        if(__instance.GetPrefabName() != "piece_bed02") return;
-        
-        Achs.GetAchievement("TakeASleep").Complete();
+        if (__instance.GetOwner() == 0L || !__instance.IsMine() || !__instance.IsCurrent()) return;
+        if (__instance.GetPrefabName() != "piece_bed02") return;
+
+        Achs.GetAchievement(nameof(TakeASleep)).Complete();
     }
 }

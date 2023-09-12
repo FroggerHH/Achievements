@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Extensions;
 using Extensions.Valheim;
+using Random = UnityEngine.Random;
 
 namespace Achievements;
 
@@ -10,15 +12,23 @@ public class Achievement
 {
     private const string IsCompletedKeyword = "Achievements_Completed";
     public string name;
-    public AchievementCompleteWay completeWay;
-    public List<(AchievementCompleteWay, string)> requirements = new();
+    public List<(AchievementCompleteWay, object)> requirements = new();
     public bool manualCompletion;
+    public bool withCustomRequirements;
 
-    public Achievement(string name, bool manualCompletion = false)
+    public Achievement(string name)
+    {
+        this.name = name;
+        Achs.RegisterAchievement(this);
+        this.manualCompletion = false;
+        this.withCustomRequirements = false;
+    }
+    public Achievement(string name, bool manualCompletion = false, bool withCustomRequirements = false) : this(name)
     {
         this.name = name;
         Achs.RegisterAchievement(this);
         this.manualCompletion = manualCompletion;
+        this.withCustomRequirements = withCustomRequirements;
     }
 
     public static implicit operator bool(Achievement achievement) { return achievement != null; }
@@ -26,24 +36,24 @@ public class Achievement
     public bool MatchRequirments()
     {
         if (manualCompletion) return false;
-
-        foreach (var (achievementCompleteWay, name) in requirements)
-            if (!Achs.HasProgress(achievementCompleteWay, name))
-                return false;
-
-        return true;
+        if (IsComplete()) return true;
+        
+        return Achs.HasAllProgress(this);
     }
 
-    public void Complete()
+    public async void Complete(float delay = -1)
     {
+        if (delay == -1) delay = Random.Range(1f, 3f);
+        await Task.Delay(delay > 0 ? (int)delay * 1000 : 1);
         if (IsComplete()) return;
         ModBase.Debug($"Achievement {name} completed");
         Achs.CompletedAchievements.TryAdd(name);
         Achs.SaveCompletedAchievements();
         Achs.CreateAchievementUIElement(this);
+        Achs.UpdateMenuAchievements();
     }
 
-    public bool IsComplete() { return Achs.CompletedAchievements.Contains(name); }
+    public bool IsComplete() => Achs.CompletedAchievements.Contains(name);
 
     public void Reset()
     {

@@ -18,13 +18,14 @@ public static class Achs
     public static List<string> CompletedAchievements = new();
     private static GameObject achievementsUI;
     private static VerticalLayoutGroup achievementsGroup;
-    private static GridLayoutGroup achievementsMenuHolder;
+    internal static GridLayoutGroup achievementsMenuHolder;
     private static GameObject achievementsMenu;
     private static GameObject achievementPopUp;
-    private static GameObject menuAchievement;
+    internal static GameObject menuAchievement;
     private static Transform startAchievementPosition;
     private static readonly float achievementMovingDuration = 0.5f;
     private static readonly float achievementLifeDuration = 2;
+    private static readonly float menuAchievementSpawnDuration = 0.1f;
 
     static Achs()
     {
@@ -66,32 +67,26 @@ public static class Achs
         };
         Localization.instance.Localize(achievementsUI.transform);
 
-        achievementsMenu.SetActive(true);
-        UpdateMenuAchievements();
-        await Task.Delay(50);
-        achievementsMenu.SetActive(false);
-        await Task.Delay(50);
-        UpdateMenuAchievements();
-        await Task.Delay(50);
-        achievementsMenu.SetActive(true);
-        await Task.Delay(50);
-        achievementsMenu.SetActive(false);
+        ShowAchievementsMenu(false, true);
+        // achievementsMenu.SetActive(true);
+        // UpdateMenuAchievements();
+        // await Task.Delay(50);
+        // achievementsMenu.SetActive(false);
+        // await Task.Delay(50);
+        // UpdateMenuAchievements();
+        // await Task.Delay(50);
+        // achievementsMenu.SetActive(true);
+        // await Task.Delay(50);
+        // achievementsMenu.SetActive(false);
     }
 
-    private static void UpdateLayout()
+    internal static void UpdateLayout()
     {
         LayoutRebuilder.ForceRebuildLayoutImmediate(achievementsUI.transform as RectTransform);
     }
 
-    private static async void UpdateMenuAchievements()
+    internal static async void UpdateMenuAchievements()
     {
-        var isActive = IsMenuActive();
-        achievementsMenu.SetActive(false);
-        achievementsMenu.SetActive(true);
-        achievementsMenu.SetActive(false);
-        achievementsMenu.SetActive(true);
-        achievementsMenu.SetActive(isActive);
-
         for (var i = 0; i < achievementsMenuHolder.transform.childCount; i++)
             Destroy(achievementsMenuHolder.transform.GetChild(i).gameObject);
 
@@ -105,10 +100,37 @@ public static class Achs
             }
 
             var achievementObject = Instantiate(menuAchievement, achievementsMenuHolder.transform).transform;
-            achievementObject.Find("Name").GetComponent<Text>().text = achievement.GetName();
-            achievementObject.Find("Description").GetComponent<Text>().text = achievement.GetDescription();
+            achievementObject.FindChildByName("Name").GetComponent<Text>().text = achievement.GetName();
+            achievementObject.FindChildByName("Description").GetComponent<Text>().text = achievement.GetDescription();
+            var scalingObject = achievementObject.GetChild(0) as RectTransform;
+            await Task.Yield();
+            await TweetMenuAchievementSpawn(scalingObject);
         }
 
+        if (achievementsMenuHolder.transform.childCount % 6 == 1 ||
+            achievementsMenuHolder.transform.childCount == 1) await SpawnTest();
+    }
+
+    private static async Task TweetMenuAchievementSpawn(Transform scalingObject)
+    {
+        if (!scalingObject || !IsMenuActive()) return;
+        float elapsedTime = 0;
+        while (elapsedTime < achievementMovingDuration)
+        {
+            scalingObject.localScale =
+                Vector3.Lerp(Vector3.zero, Vector3.one, elapsedTime / menuAchievementSpawnDuration);
+            elapsedTime += Time.deltaTime;
+            await Task.Yield();
+        }
+    }
+
+    internal static async Task SpawnTest()
+    {
+        var test = Instantiate(menuAchievement, achievementsMenuHolder.transform);
+        UpdateLayout();
+        await Task.Yield();
+        UpdateLayout();
+        Destroy(test);
         UpdateLayout();
     }
 
@@ -118,7 +140,7 @@ public static class Achs
         go.name = $"Achievement_{achievement.name}";
         go.Find("Name").GetComponent<Text>().text = achievement.GetName();
         go.Find("Desc").GetComponent<Text>().text = achievement.GetDescription();
-        LayoutRebuilder.ForceRebuildLayoutImmediate(achievementsUI.transform as RectTransform);
+        UpdateLayout();
         Vector2 endPosition = go.transform.position;
         Vector2 startPosition = startAchievementPosition.position;
         var uiElement = go as RectTransform;
@@ -167,6 +189,26 @@ public static class Achs
         SaveAchievementsProgress();
     }
 
+    public static void AddCustomProgress(string progressKey)
+    {
+        progressKey = $"CustomProgress_{progressKey}";
+
+        if (!AchievementsProgress.Contains(progressKey)) AchievementsProgress.Add($"{progressKey} 0");
+        var find = AchievementsProgress.Find(x => x.StartsWith(progressKey));
+        if (!find.IsGood())
+        {
+            DebugError($"The progress {progressKey} is not found");
+            return;
+        }
+
+        var split = find.Split(' ');
+        split[1] = (int.Parse(split[1]) + 1).ToString();
+        AchievementsProgress[AchievementsProgress.IndexOf(find)] = $"{split[0]} {split[1]}";
+        Debug($"Progress {progressKey} added. Result is {AchievementsProgress.Find(x => x.StartsWith(progressKey))}");
+
+        SaveAchievementsProgress();
+    }
+
     public static void RegisterAchievement(Achievement achievement)
     {
         if (AllAchievements.Contains(achievement)) return;
@@ -192,13 +234,6 @@ public static class Achs
         AllAchievements.ForEach(x => TryCompleteAchievement(x));
     }
 
-    public static bool CanCompleteAchievement(string name)
-    {
-        var achievement = GetAchievement(name);
-        if (!achievement) return false;
-        return achievement.MatchRequirments();
-    }
-
     public static bool TryCompleteAchievement(Achievement achievement)
     {
         if (!achievement.MatchRequirments()) return false;
@@ -220,9 +255,10 @@ public static class Achs
         AchievementsProgress.Clear();
         CompletedAchievements.Clear();
         Debug("Achievements reseted");
+        UpdateMenuAchievements();
     }
 
-    public static bool HasProgress(AchievementCompleteWay completeWay, string name)
+    public static bool HasProgress(AchievementCompleteWay completeWay, object name)
     {
         var key = string.Empty;
         switch (completeWay)
@@ -238,17 +274,39 @@ public static class Achs
         return AchievementsProgress.Contains(key);
     }
 
+    public static bool HasAllProgress(Achievement achievement)
+    {
+        var key = string.Empty;
+        foreach (var (completeWay, whatToDo) in achievement.requirements)
+        {
+            switch (completeWay)
+            {
+                case AchievementCompleteWay.KnowItem:
+                    key = $"HasItem_{whatToDo}";
+                    if (!AchievementsProgress.Contains(key)) return false;
+                    break;
+                case AchievementCompleteWay.UsedItem:
+                    key = $"UsedItem_{whatToDo}";
+                    if (!AchievementsProgress.Contains(key)) return false;
+                    break;
+                case AchievementCompleteWay.CustomProgress:
+                    var find = AchievementsProgress.Find(x => x.StartsWith($"CustomProgress_{achievement.name}"));
+                    if (!find.IsGood()) return false;
+                    var progress = int.Parse(find.Split(' ')[1]);
+                    if (progress < (int)whatToDo) return false;
+                    break;
+            }
+        }
+
+        return true;
+    }
+
     public static void TorgeAchievementsMenu() => ShowAchievementsMenu(!achievementsMenu.activeSelf);
 
-    public static void ShowAchievementsMenu(bool flag)
+    public static async void ShowAchievementsMenu(bool flag, bool shake = true)
     {
         UpdateMenuAchievements();
-
-        achievementsMenu.SetActive(true);
-        achievementsMenu.SetActive(false);
-        achievementsMenu.SetActive(true);
         achievementsMenu.SetActive(flag);
-
         UpdateLayout();
     }
 

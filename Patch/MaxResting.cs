@@ -17,6 +17,6 @@ public class MaxResting
         if (!Player.m_localPlayer || player != Player.m_localPlayer) return;
         if (SceneManager.GetActiveScene().name != "main") return;
 
-        Achs.GetAchievement("MaxResting").Complete();
+        Achs.GetAchievement(nameof(MaxResting)).Complete();
     }
 }

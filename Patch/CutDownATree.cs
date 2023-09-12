@@ -15,6 +15,6 @@ public class CutDownATree
         if (!Player.m_localPlayer || hit == null || hit.GetAttacker() != Player.m_localPlayer) return;
         if(__instance.m_nview.GetZDO() != null) return;
         
-        Achs.GetAchievement("CutDownATree").Complete();
+        Achs.GetAchievement(nameof(CutDownATree)).Complete();
     }
 }
