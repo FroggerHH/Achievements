@@ -4,5 +4,7 @@ public enum AchievementCompleteWay
 {
     KnowItem,
     UsedItem,
-    CustomProgress
+    PlayerStat,
+    CustomProgress,
+    KilledSpecificCreature
 }

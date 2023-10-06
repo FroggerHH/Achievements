@@ -1,12 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Extensions;
-using Extensions.Valheim;
-using HarmonyLib;
-using TMPro;
-using UnityEngine.SceneManagement;
+﻿using TMPro;
 using UnityEngine.UI;
-using static UnityEngine.Object;
 
 namespace Achievements;
 
@@ -25,10 +18,10 @@ public class AddMenuInMainMenu
         var buttons = new List<Button>(__instance.m_menuButtons);
         buttons.Add(newButton);
         __instance.m_menuButtons = buttons.ToArray();
-        newButton.onClick = new();
+        newButton.onClick = new Button.ButtonClickedEvent();
         newButton.transform.SetSiblingIndex(3);
         newButton.onClick.AddListener(() => Achs.ShowAchievementsMenu(true));
-        
+
         Achs.TorgeAchievementsMenu();
         Achs.TorgeAchievementsMenu();
     }

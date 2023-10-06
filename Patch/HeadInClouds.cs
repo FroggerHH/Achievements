@@ -1,10 +1,4 @@
-﻿using System.Linq;
-using Extensions;
-using Extensions.Valheim;
-using HarmonyLib;
-using UnityEngine.SceneManagement;
-using static Heightmap;
-using static Heightmap.Biome;
+﻿using UnityEngine.SceneManagement;
 
 namespace Achievements;
 

@@ -1,6 +1,4 @@
-﻿using System;
-using HarmonyLib;
-using static Terminal;
+﻿using static Terminal;
 
 namespace Achievements;
 

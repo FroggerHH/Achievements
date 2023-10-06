@@ -53,6 +53,9 @@
         <Reference Include="fastJSON">
             <HintPath>..\Utils\fastJSON.dll</HintPath>
         </Reference>
+        <Reference Include="JFUtils">
+            <HintPath>..\Utils\JFUtils.dll</HintPath>
+        </Reference>
         <Reference Include="LocalizationManager">
             <HintPath>..\Utils\LocalizationManager.dll</HintPath>
         </Reference>
@@ -64,7 +67,7 @@
         <Reference Include="System.Data" />
         <Reference Include="System.Xml" />
         <Reference Include="Unity.TextMeshPro">
-          <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+            <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine">
             <HintPath>..\..\Unity\Unity Hub\versions\2020.3.36f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
@@ -90,49 +93,41 @@
         <Reference Include="UnityEngine.PhysicsModule">
             <HintPath>..\..\Unity\Unity Hub\versions\2020.3.36f1\Editor\Data\Managed\UnityEngine\UnityEngine.PhysicsModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.UI">
             <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.UI.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UnityWebRequestModule">
-          <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+            <HintPath>..\..\..\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
         </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Achievement.cs" />
         <Compile Include="AchievementCompleteWay.cs" />
         <Compile Include="Achs.cs" />
-        <Compile Include="Extensions\EnumerableExtension.cs" />
-        <Compile Include="Extensions\GameObjectExtension.cs" />
-        <Compile Include="Extensions\MonoBehaviourExtension.cs" />
-        <Compile Include="Extensions\RendererExtension.cs" />
-        <Compile Include="Extensions\SimpleVector2.cs" />
-        <Compile Include="Extensions\SimpleVector3.cs" />
-        <Compile Include="Extensions\StringExtension.cs" />
-        <Compile Include="Extensions\TransformExtension.cs" />
-        <Compile Include="Extensions\Utilities.cs" />
-        <Compile Include="Extensions\Valheim\BaseMod.cs" />
-        <Compile Include="Extensions\Valheim\BiomeExtension.cs" />
-        <Compile Include="Extensions\Valheim\InventoryExtension.cs" />
-        <Compile Include="Extensions\Valheim\ItemDropExtension.cs" />
-        <Compile Include="Extensions\Valheim\MinimapExtension.cs" />
-        <Compile Include="Extensions\Valheim\ObjectDBExtension.cs" />
-        <Compile Include="Extensions\Valheim\RecipeExtension.cs" />
-        <Compile Include="Extensions\Valheim\StringExtension.cs" />
-        <Compile Include="Extensions\Valheim\WithPatch\RegisterObjectsInstances.cs" />
-        <Compile Include="Extensions\Valheim\WithPatch\UpdateConfigOnGameStart.cs" />
-        <Compile Include="Extensions\Valheim\ZNetSceneExtension.cs" />
-        <Compile Include="Extensions\Valheim\ZoneSystemExtension.cs" />
-        <Compile Include="Extensions\VectorExtension.cs" />
+        <Compile Include="GlobalUsings.cs" />
         <Compile Include="Patch\AddMenuInMainMenu.cs" />
+        <Compile Include="Patch\AllSkills100.cs" />
+        <Compile Include="Patch\AllSkills60.cs" />
+        <Compile Include="Patch\Cheater.cs" />
         <Compile Include="Patch\CutDownATree.cs" />
         <Compile Include="Patch\FireworksFestival.cs" />
+        <Compile Include="Patch\GoldRush.cs" />
+        <Compile Include="Patch\Gourmet.cs" />
+        <Compile Include="Patch\Headhunter.cs" />
         <Compile Include="Patch\HeadInClouds.cs" />
         <Compile Include="Patch\Horticulturist.cs" />
         <Compile Include="Patch\IntrusiveThoughtsWon.cs" />
         <Compile Include="Patch\Journeyman.cs" />
+        <Compile Include="Patch\LockCursor.cs" />
+        <Compile Include="Patch\Map50.cs" />
+        <Compile Include="Patch\MasterBuilder.cs" />
         <Compile Include="Patch\MaxResting.cs" />
         <Compile Include="Patch\MushroomMan.cs" />
         <Compile Include="Patch\RememberItems.cs" />
+        <Compile Include="Patch\RememberKills.cs" />
         <Compile Include="Patch\TakeASleep.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
@@ -150,7 +145,7 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </EmbeddedResource>
         <EmbeddedResource Include="assets\achievements">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </EmbeddedResource>
         <Content Include="ILRepack.targets" />
     </ItemGroup>

@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using HarmonyLib;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 namespace Achievements;
 

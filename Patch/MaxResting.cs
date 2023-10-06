@@ -1,15 +1,11 @@
-﻿using System;
-using System.Linq;
-using Extensions.Valheim;
-using HarmonyLib;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 namespace Achievements;
 
 [HarmonyPatch]
 public class MaxResting
 {
-    [HarmonyPatch(typeof(SE_Rested), nameof(SE_Rested.CalculateComfortLevel), new Type[] { typeof(Player) })]
+    [HarmonyPatch(typeof(SE_Rested), nameof(SE_Rested.CalculateComfortLevel), typeof(Player))]
     [HarmonyPostfix]
     private static void CalculateComfortLevel(ref int __result, Player player)
     {

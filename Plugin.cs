@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BepInEx;
-using Extensions;
+﻿using BepInEx;
 using LocalizationManager;
-using UnityEngine;
-using static Extensions.Valheim.ModBase;
 using static Achievements.AchievementCompleteWay;
 
 namespace Achievements;
 
 [BepInPlugin(ModGUID, ModName, ModVersion)]
-[BepInDependency("com.Frogger.NoUselessWarnings", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("com.Frogger.NoUselessWarnings", DependencyFlags.SoftDependency)]
 internal class Plugin : BaseUnityPlugin
 {
     internal const string ModName = "Achievements",
-        ModVersion = "1.1.0",
+        ModVersion = "1.2.0",
         ModGUID = $"com.{ModAuthor}.{ModName}",
         ModAuthor = "Frogger";
 
@@ -32,7 +26,9 @@ internal class Plugin : BaseUnityPlugin
     {
         if (Input.GetKeyDown(KeyCode.Escape) && Achs.IsMenuActive()) Achs.ShowAchievementsMenu(false);
         if (Input.GetKeyDown(KeyCode.KeypadMultiply)) Achs.TorgeAchievementsMenu();
-        if (Input.GetKeyDown(KeyCode.KeypadMinus))
+        if (Input.GetKeyDown(KeyCode.KeypadMinus) && Input.GetKeyDown(KeyCode.LeftShift))
+            Achs.AllAchievements.Where(x => x.IsComplete() == false).ToList()?.ForEach(x => x.Complete(0));
+        else if (Input.GetKeyDown(KeyCode.KeypadMinus))
             Achs.AllAchievements.Where(x => x.IsComplete() == false).ToList().FirstOrDefault()?.Complete(0);
 
         if (Input.GetKeyDown(KeyCode.KeypadEnter)) Achs.ResetAllAchievements();
@@ -42,7 +38,7 @@ internal class Plugin : BaseUnityPlugin
     {
         new Achievement("GetWoodAndStone")
         {
-            requirements = new()
+            requirements = new List<(AchievementCompleteWay, object)>
             {
                 (KnowItem, "$item_wood"),
                 (KnowItem, "$item_stone")
@@ -50,14 +46,14 @@ internal class Plugin : BaseUnityPlugin
         };
         new Achievement("FineWood")
         {
-            requirements = new()
+            requirements = new List<(AchievementCompleteWay, object)>
             {
                 (KnowItem, "$item_finewood")
             }
         };
         new Achievement("FireworksFestival")
         {
-            requirements = new()
+            requirements = new List<(AchievementCompleteWay, object)>
             {
                 (UsedItem, "$item_fireworkrocket_blue"),
                 (UsedItem, "$item_fireworkrocket_cyan"),
@@ -78,7 +74,7 @@ internal class Plugin : BaseUnityPlugin
         new Achievement("IntrusiveThoughtsWon", true);
         new Achievement("Horticulturist", withCustomRequirements: true)
         {
-            requirements = new()
+            requirements = new List<(AchievementCompleteWay, object)>
             {
                 (CustomProgress, 1000)
             }
@@ -86,34 +82,88 @@ internal class Plugin : BaseUnityPlugin
         new Achievement("Journeyman", true);
         new Achievement("MushroomMan", withCustomRequirements: true)
         {
-            requirements = new()
+            requirements = new List<(AchievementCompleteWay, object)>
             {
                 (CustomProgress, 1000)
             }
         };
         new Achievement("HeadInClouds", withCustomRequirements: true)
         {
-            requirements = new()
+            requirements = new List<(AchievementCompleteWay, object)>
             {
                 (CustomProgress, 50)
             }
         };
+        new Achievement(nameof(AllSkills60), true);
+        new Achievement(nameof(AllSkills100), true);
+        new Achievement(nameof(MasterBuilder), withCustomRequirements: true)
+        {
+            requirements = new List<(AchievementCompleteWay, object)>
+            {
+                (CustomProgress, 100000)
+            }
+        };
+        new Achievement(nameof(GoldRush), withCustomRequirements: true)
+        {
+            requirements = new List<(AchievementCompleteWay, object)>
+            {
+                (CustomProgress, 10000)
+            }
+        };
+        new Achievement("Wormhole")
+        {
+            requirements = new List<(AchievementCompleteWay, object)>
+            {
+                (PlayerStat, (PlayerStatType.PortalsUsed, 1000))
+            }
+        };
+        new Achievement(nameof(Headhunter))
+        {
+            requirements = null
+        };
+        new Achievement(nameof(Gourmet))
+        {
+            requirements = null
+        };
+        new Achievement("Killer")
+        {
+            requirements = new List<(AchievementCompleteWay, object)>
+            {
+                (PlayerStat, (PlayerStatType.EnemyKills, 100000))
+            }
+        };
+        new Achievement("WonTheGame")
+        {
+            requirements = new List<(AchievementCompleteWay, object)>
+            {
+                (KilledSpecificCreature, ("Eikthyr", 1)),
+                (KilledSpecificCreature, ("gd_king", 1)),
+                (KilledSpecificCreature, ("Bonemass", 1)),
+                (KilledSpecificCreature, ("Dragon", 1)),
+                (KilledSpecificCreature, ("GoblinKing", 1)),
+                (KilledSpecificCreature, ("SeekerQueen", 1))
+            }
+        };
+        new Achievement("Map50", true);
 
-        //TODO: Weapon master - Reach lvl 100 in any weapon skill
-        //TODO: Versatile warrior - Reach lvl 60 in every weapon skill
-        //TODO: Master builder - Build 200.000 pieces
-        //TODO: Like a dragon - Gather 10000 coins
-        //TODO: Night owl - Doesn't sleep for 100 in-game days
-        //TODO: Headhunter - Collect the heads of all creatures.
-        //TODO: Valhalla Gourmet - Prepare and eat one of each type of food.
+        //AllSkills60//TODO: Versatile warrior - Reach lvl 60 in every weapon skill
+        //AllSkills100//TODO: Weapon master - Reach lvl 100 in any weapon skill
+        //MasterBuilder//TODO: Master builder - Build 200.000 pieces
+        //GoldRush//TODO: GoldRush - потратить 1000 монет
+        //Wormhole//TODO: Wormhole - use teleporters  1000 times
+        //Headhunter//TODO: Headhunter - Collect the heads of all creatures.
+        //Gourmet//TODO: Valhalla Gourmet - Prepare and eat one of each type of food.
+        //Killer//TODO: Killer - kill 100000
+        //WonTheGame//TODO: WonTheGame - Kill all bosses
+        //Map50//TODO: Reborn Geographer - Explore 70% of the world map.
         //TODO: Marksmanship Mastery - Kill 100 creatures using a bow or crossbow.
         //TODO: Odin's Pride - Defeat each of the bosses without dying during the battle.
         //TODO: Firebrand Viking - Incinerate 1000 enemies using a fire staff or fire arrows.
-        //TODO: Reborn Geographer - Explore 70% of the world map.
         //TODO: Legendary Blacksmith - Craft and upgrade every type of weapon and armor in the game to maximum level.
         //TODO: Master Crossbowman - Defeat each boss in the game using only a crossbow.
         //TODO: Cool-headed Viking - Traverse each biome without wearing armor and without using mead, even in extreme conditions.
-        //TODO: Wormhole -  use teleporters  1000 times
+        //TODO: Night owl - Doesn't sleep for 100 in-game days
+        //TODO: Like a dragon - Gather 10000 coins
     }
 
     private void CheckAllAchievements()

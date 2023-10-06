@@ -1,10 +1,4 @@
-﻿using System.Linq;
-using Extensions;
-using Extensions.Valheim;
-using HarmonyLib;
-using UnityEngine.SceneManagement;
-using static Heightmap;
-using static Heightmap.Biome;
+﻿using UnityEngine.SceneManagement;
 
 namespace Achievements;
 
@@ -22,5 +16,5 @@ public class MushroomMan
         Achs.AddCustomProgress(nameof(MushroomMan));
     }
 
-    private static bool KnowBiome(Biome biome) => Player.m_localPlayer.m_knownBiome.Contains(biome);
+    private static bool KnowBiome(Biome biome) { return Player.m_localPlayer.m_knownBiome.Contains(biome); }
 }

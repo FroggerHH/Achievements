@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using HarmonyLib;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 namespace Achievements;
 
@@ -8,7 +6,7 @@ namespace Achievements;
 public class FireworksFestival
 {
     [HarmonyPatch(typeof(Fireplace), nameof(Fireplace.UseItem))] [HarmonyPostfix]
-    private static void InventoryChanged(Fireplace __instance, Humanoid user, ItemDrop.ItemData item)
+    private static void InventoryChanged(Fireplace __instance, Humanoid user, ItemData item)
     {
         if (SceneManager.GetActiveScene().name != "main") return;
         if (!Player.m_localPlayer || user != Player.m_localPlayer) return;

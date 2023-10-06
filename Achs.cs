@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Extensions;
-using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static Extensions.Valheim.ModBase;
-using static UnityEngine.Object;
 
 namespace Achievements;
 
@@ -26,6 +19,7 @@ public static class Achs
     private static readonly float achievementMovingDuration = 0.5f;
     private static readonly float achievementLifeDuration = 2;
     private static readonly float menuAchievementSpawnDuration = 0.1f;
+    public static List<PlayerProfile> profiles = new();
 
     static Achs()
     {
@@ -67,17 +61,35 @@ public static class Achs
         };
         Localization.instance.Localize(achievementsUI.transform);
 
-        ShowAchievementsMenu(false, true);
-        // achievementsMenu.SetActive(true);
-        // UpdateMenuAchievements();
-        // await Task.Delay(50);
-        // achievementsMenu.SetActive(false);
-        // await Task.Delay(50);
-        // UpdateMenuAchievements();
-        // await Task.Delay(50);
-        // achievementsMenu.SetActive(true);
-        // await Task.Delay(50);
-        // achievementsMenu.SetActive(false);
+        ShowAchievementsMenu(false);
+        achievementsUI.transform.FindChildByName("topic_Cheater").SetActiveGO(false);
+        FixFonts();
+    }
+
+    private static void FixFonts()
+    {
+        var allFonts = Resources.FindObjectsOfTypeAll<Font>();
+        var AveriaSerif = allFonts.FirstOrDefault(x => x.name == "AveriaSerifLibre-Regular");
+        var AveriaSerifBold = allFonts.FirstOrDefault(x => x.name == "AveriaSerifLibre-Bold");
+        var Norse = allFonts.FirstOrDefault(x => x.name == "Norse");
+        var NorseBold = allFonts.FirstOrDefault(x => x.name == "Norsebold");
+
+        foreach (var text in achievementsUI.GetComponentsInChildren<Text>(true))
+            switch (text.font.name)
+            {
+                case "AveriaSansLibre-Regular":
+                    text.font = AveriaSerif;
+                    break;
+                case "AveriaSerifLibre-Bold":
+                    text.font = AveriaSerifBold;
+                    break;
+                case "Norse":
+                    text.font = Norse;
+                    break;
+                case "NorseBold":
+                    text.font = NorseBold;
+                    break;
+            }
     }
 
     internal static void UpdateLayout()
@@ -89,9 +101,11 @@ public static class Achs
     {
         for (var i = 0; i < achievementsMenuHolder.transform.childCount; i++)
             Destroy(achievementsMenuHolder.transform.GetChild(i).gameObject);
+        if (!IsMenuActive()) return;
 
         foreach (var name in CompletedAchievements)
         {
+            if (!IsMenuActive()) return;
             var achievement = GetAchievement(name);
             if (!achievement)
             {
@@ -117,6 +131,7 @@ public static class Achs
         float elapsedTime = 0;
         while (elapsedTime < achievementMovingDuration)
         {
+            if (!IsMenuActive()) return;
             scalingObject.localScale =
                 Vector3.Lerp(Vector3.zero, Vector3.one, elapsedTime / menuAchievementSpawnDuration);
             elapsedTime += Time.deltaTime;
@@ -138,8 +153,8 @@ public static class Achs
     {
         var go = Instantiate(achievementPopUp, achievementsGroup.transform).transform;
         go.name = $"Achievement_{achievement.name}";
-        go.Find("Name").GetComponent<Text>().text = achievement.GetName();
-        go.Find("Desc").GetComponent<Text>().text = achievement.GetDescription();
+        go.FindChildByName("Name").GetComponent<Text>().text = achievement.GetName();
+        go.FindChildByName("Desc").GetComponent<Text>().text = achievement.GetDescription();
         UpdateLayout();
         Vector2 endPosition = go.transform.position;
         Vector2 startPosition = startAchievementPosition.position;
@@ -189,20 +204,21 @@ public static class Achs
         SaveAchievementsProgress();
     }
 
-    public static void AddCustomProgress(string progressKey)
+    public static void AddCustomProgress(string progressKey, int value = 1)
     {
         progressKey = $"CustomProgress_{progressKey}";
 
-        if (!AchievementsProgress.Contains(progressKey)) AchievementsProgress.Add($"{progressKey} 0");
+        //if (!AchievementsProgress.Contains(progressKey)) AchievementsProgress.Add($"{progressKey} 0");
         var find = AchievementsProgress.Find(x => x.StartsWith(progressKey));
         if (!find.IsGood())
         {
-            DebugError($"The progress {progressKey} is not found");
+            //DebugError($"The progress {progressKey} is not found");
+            AchievementsProgress.Add($"{progressKey} 0");
             return;
         }
 
         var split = find.Split(' ');
-        split[1] = (int.Parse(split[1]) + 1).ToString();
+        split[1] = (int.Parse(split[1]) + value).ToString();
         AchievementsProgress[AchievementsProgress.IndexOf(find)] = $"{split[0]} {split[1]}";
         Debug($"Progress {progressKey} added. Result is {AchievementsProgress.Find(x => x.StartsWith(progressKey))}");
 
@@ -226,7 +242,12 @@ public static class Achs
         return false;
     }
 
-    public static Achievement GetAchievement(string name) { return AllAchievements.Find(x => x.name == name); }
+    public static Achievement GetAchievement(string name)
+    {
+        var find = AllAchievements.Find(x => x.name == name);
+        if (!find) DebugError($"Unknown achievement name '{name}'");
+        return find;
+    }
 
     public static void CheckAllAchievements()
     {
@@ -258,27 +279,11 @@ public static class Achs
         UpdateMenuAchievements();
     }
 
-    public static bool HasProgress(AchievementCompleteWay completeWay, object name)
-    {
-        var key = string.Empty;
-        switch (completeWay)
-        {
-            case AchievementCompleteWay.KnowItem:
-                key = $"HasItem_{name}";
-                break;
-            case AchievementCompleteWay.UsedItem:
-                key = $"UsedItem_{name}";
-                break;
-        }
-
-        return AchievementsProgress.Contains(key);
-    }
-
     public static bool HasAllProgress(Achievement achievement)
     {
         var key = string.Empty;
+        if (achievement.requirements == null) return false;
         foreach (var (completeWay, whatToDo) in achievement.requirements)
-        {
             switch (completeWay)
             {
                 case AchievementCompleteWay.KnowItem:
@@ -295,20 +300,49 @@ public static class Achs
                     var progress = int.Parse(find.Split(' ')[1]);
                     if (progress < (int)whatToDo) return false;
                     break;
+                case AchievementCompleteWay.KilledSpecificCreature:
+                    var (creatureName, needToKillCount) = ((string, int))whatToDo;
+                    var findCreatureName = AchievementsProgress.Find(x =>
+                        x.StartsWith(
+                            $"CustomProgress_KilledSpecificCreature_{creatureName}"));
+                    if (!findCreatureName.IsGood()) return false;
+                    var killProgress = int.Parse(findCreatureName.Split(' ')[1]);
+                    if (killProgress < needToKillCount) return false;
+                    break;
+                case AchievementCompleteWay.PlayerStat:
+                    if (whatToDo is (PlayerStatType, int))
+                    {
+                        var (statType, needStat) = ((PlayerStatType, int))whatToDo;
+                        var profile = Game.instance.GetPlayerProfile();
+                        if (!profile.m_playerStats.m_stats.TryGetValue(statType, out var hasStat)) return false;
+                        if (hasStat < needStat) return false;
+                    } else
+                    {
+                        DebugError(
+                            $"HasAllProgress error for {achievement.name}: Can't identify what {whatToDo} is in cace PlayerStat'");
+                        return false;
+                    }
+
+                    break;
             }
-        }
 
         return true;
     }
 
-    public static void TorgeAchievementsMenu() => ShowAchievementsMenu(!achievementsMenu.activeSelf);
+    public static void TorgeAchievementsMenu() { ShowAchievementsMenu(!achievementsMenu.activeSelf); }
 
     public static async void ShowAchievementsMenu(bool flag, bool shake = true)
     {
-        UpdateMenuAchievements();
+        CheckCheater();
         achievementsMenu.SetActive(flag);
+        UpdateMenuAchievements();
         UpdateLayout();
     }
 
     public static bool IsMenuActive() { return achievementsMenu.activeSelf; }
+
+    public static void CheckCheater()
+    {
+        achievementsUI.transform.FindChildByName("topic_Cheater").SetActiveGO(profiles.Any(x => x.m_usedCheats));
+    }
 }
